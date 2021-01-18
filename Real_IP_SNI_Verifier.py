@@ -24,8 +24,8 @@ def main():
                                      "Sure you could use curl and just put the \"Host: example.com\" header but most CDNs and cloud hosting providers usually use SNI." +
                                      "IMPORTANT: Make sure to edit the headers in the code. I usually use Burp Suite's \"Copy As Python-Requests\" plugin and save it using \"Copy as requests\" when right clicking on the Repeater or Proxy tab.\n\n" +
                                      "Example commands:\n" +
-                                     "$ python3 Real_IP_SNI_Verifier.py.py --domain maps.google.com --path /landing/transit/js/transit_directions.min.js --ip 216.58.207.46 --keyword \"mapTypeId: google.maps.MapTypeId.ROADMAP\" --range-start 46 --range-end 49\n" +
-                                     "$ python3 Real_IP_SNI_Verifier.py.py --domain maps.google.com --path /landing/transit/js/transit_directions.min.js --ip 216.58.207.46 --keyword \"mapTypeId: google.maps.MapTypeId.ROADMAP\"")
+                                     "$ python3 Real_IP_SNI_Verifier.py --domain maps.google.com --path /landing/transit/js/transit_directions.min.js --ip 216.58.207.46 --keyword \"mapTypeId: google.maps.MapTypeId.ROADMAP\" --range-start 46 --range-end 49\n" +
+                                     "$ python3 Real_IP_SNI_Verifier.py --domain maps.google.com --path /landing/transit/js/transit_directions.min.js --ip 216.58.207.46 --keyword \"mapTypeId: google.maps.MapTypeId.ROADMAP\"")
     parser.add_argument("-v", dest="verbose", action="store_true",
                         default=False, help="Verbose mode")
     parser.add_argument(
