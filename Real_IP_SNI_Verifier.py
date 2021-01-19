@@ -1,31 +1,29 @@
+import time
 import requests
 import logging
 import argparse
-from argparse import RawTextHelpFormatter
-from urllib3.exceptions import InsecureRequestWarning
-try:
-    from BeautifulSoup import BeautifulSoup
-except ImportError:
-    from bs4 import BeautifulSoup
+import urllib3
+from bs4 import BeautifulSoup
 
-# Install dependencies: `pip install forcediphttpsadapter lxml`
+
+# Install dependencies: `pip install forcediphttpsadapter`
 # Source: https://github.com/Roadmaster/forcediphttpsadapter
 from forcediphttpsadapter.adapters import ForcedIPHTTPSAdapter
 
 
 # Suppress only the single warning from urllib3 needed.
-requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+requests.packages.urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
 
 
 def main():
     log = logging.getLogger(__name__)
-    parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter,
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
                                      description="Description:\nA quick dirty script to try to find/confirm the real IP Address of a website behind a CDN by requesting for an actual resource from the website and confirming its contents.\n" +
                                      "Sure you could use curl and just put the \"Host: example.com\" header but most CDNs and cloud hosting providers usually use SNI." +
                                      "IMPORTANT: Make sure to edit the headers in the code. I usually use Burp Suite's \"Copy As Python-Requests\" plugin and save it using \"Copy as requests\" when right clicking on the Repeater or Proxy tab.\n\n" +
                                      "Example commands:\n" +
-                                     "$ python3 Real_IP_SNI_Verifier.py --domain maps.google.com --path /landing/transit/js/transit_directions.min.js --ip 216.58.207.46 --keyword \"mapTypeId: google.maps.MapTypeId.ROADMAP\" --range-start 46 --range-end 49\n" +
-                                     "$ python3 Real_IP_SNI_Verifier.py --domain maps.google.com --path /landing/transit/js/transit_directions.min.js --ip 216.58.207.46 --keyword \"mapTypeId: google.maps.MapTypeId.ROADMAP\"")
+                                     "$ python3 Real_IP_SNI_Verifier.py --domain maps.google.com --path /landing/transit/js/transit_directions.min.js --ip 74.125.24.102 --keyword \"mapTypeId:google.maps.MapTypeId.ROADMAP\" --range-start 46 --range-end 49\n" +
+                                     "$ python3 Real_IP_SNI_Verifier.py --domain maps.google.com --path /landing/transit/js/transit_directions.min.js --ip $(dig +short maps.google.com|head -n 1) --keyword \"mapTypeId:google.maps.MapTypeId.ROADMAP\"")
     parser.add_argument("-v", dest="verbose", action="store_true",
                         default=False, help="Verbose mode")
     parser.add_argument(
@@ -67,15 +65,15 @@ def main():
         ip = subnet+str(number)
         print(ip, end=" --- ")
         session = requests.Session()
-        session.mount("https://"+args.domain, ForcedIPHTTPSAdapter(dest_ip=subnet+str(number)))
+        session.mount("https://"+args.domain, ForcedIPHTTPSAdapter(dest_ip=ip))
         try:
-            response = session.get(burp0_url, headers=burp0_headers, verify=False, timeout=2)
+            response = session.get(burp0_url, headers=burp0_headers, verify=False, timeout=5)
 
             try:
                 print("Response Code: " + str(response.status_code), end=' --- ')
                 try:
-                    parsed_html = BeautifulSoup(response.content.decode('utf-8'), features="lxml")
-                    print("Webpage Title: " + parsed_html.head.find('title').text)
+                    parsed_html = BeautifulSoup(response.content, 'html.parser')
+                    print("Webpage Title: " + str(parsed_html.title))
                 except Exception as e:
                     print("Response not HTML")
                     log.debug("Exception: %s" % e)
@@ -89,7 +87,8 @@ def main():
         except Exception as e:
             print("Timeout")
             log.debug("Exception: %s" % str(e))
-        session.close()
+        finally:
+            session.close()
 
     # Print summary if there were possible matches
     if possible_matches:
@@ -99,4 +98,7 @@ def main():
 
 
 if __name__ == "__main__":
+    start_time = time.perf_counter()
     main()
+    ellapsed_time = round(time.perf_counter() - start_time, 2)
+    print(f'Finished in {ellapsed_time} seconds(s)')
