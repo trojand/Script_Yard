@@ -41,7 +41,16 @@ def main():
 
     log.debug("Args: %s", args)
     log.info("Test: % s" % args.ip)
-
+    
+    # Requests
+    proxies = {'http': 'http://127.0.0.1:8080', 'https': 'https://127.0.0.1:8080'}
+    headers = {'User-Agent': 'Mozilla'}
+    r = requests.get('https://google.com/', headers=headers, verify=False, proxies=proxies)
+    print('Status_code is: ', r.status_code))
+    print('Headers are: ', r.headers))
+    print('Cookies are: ', r.cookies))
+    print('Text is: ', r.text))
+    
 
 if __name__ == "__main__":
     start_time = time.perf_counter()
