@@ -5,14 +5,15 @@ import logging
 import argparse
 import time
 import json
-from urllib3.exceptions import InsecureRequestWarning
+# from urllib3.exceptions import InsecureRequestWarning
 from bs4 import BeautifulSoup
 
 # Create and configure logger
 LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
 
 # Suppress only the single warning from urllib3 needed.
-requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+# requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
 def main():
