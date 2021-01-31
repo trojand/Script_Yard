@@ -5,6 +5,8 @@ import logging
 import argparse
 import time
 import json
+import sys
+import re
 # from urllib3.exceptions import InsecureRequestWarning
 from bs4 import BeautifulSoup
 
@@ -24,9 +26,9 @@ def main():
                                      "Also, delete the functions below once done as they are just tips and reminders.\n" +
                                      "Message me if you have any suggestions to improve this template/skeleton script.\n" +
                                      "Example commands:\n" +
-                                     "$ python3 script_name.py --ip 1.2.3.4 --range-start-variable 30\n")
+                                     "$ python3 " + sys.argv[0] + " --ip 1.2.3.4 --range-start-variable 30\n")
     parser.add_argument("-v", dest="verbose", action="store_true",
-                        default=False, help="Verbose mode")
+                        default=False, help="Verbose/Debug mode")
     parser.add_argument(
         "--ip", dest="ip", required=True, type=str, help="The subnet:\n Example: XXX.XXX.XXX.46")
     parser.add_argument(
@@ -35,21 +37,23 @@ def main():
 
     # Configure Logging Verbosity
     if args.verbose:
-        logging.basicConfig(filename="./python.log", format=LOG_FORMAT, level=logging.DEBUG)
+        logging.basicConfig(filename="./python-debug.log", format=LOG_FORMAT, level=logging.DEBUG)
     else:
-        logging.basicConfig(filename="./python.log", format=LOG_FORMAT, level=logging.INFO)
+        logging.basicConfig(filename="./python-info.log", format=LOG_FORMAT, level=logging.INFO)
 
-    log.debug("Args: %s", args)
-    log.info("Test: % s" % args.ip)
+    log.debug("DEBUG: Args: %s", args)
+    log.info("INFO: Args: % s" % args.ip)
     
     # Requests
     proxies = {'http': 'http://127.0.0.1:8080', 'https': 'https://127.0.0.1:8080'}
     headers = {'User-Agent': 'Mozilla'}
+    data = "id=1"
     r = requests.get('https://google.com/', headers=headers, verify=False, proxies=proxies)
-    print('Status_code is: ', r.status_code))
-    print('Headers are: ', r.headers))
-    print('Cookies are: ', r.cookies))
-    print('Text is: ', r.text))
+    # r = requests.post('https://google.com/', headers=headers, verify=False, proxies=proxies, data=data)
+    print('Status_code is: ', r.status_code)
+    print('Headers are: ', r.headers)
+    print('Cookies are: ', r.cookies)
+    print('Text is: ', r.text)
     
 
 if __name__ == "__main__":
