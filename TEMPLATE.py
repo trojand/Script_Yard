@@ -10,6 +10,7 @@ import asyncio
 from aiohttp import ClientSession
 # from urllib3.exceptions import InsecureRequestWarning
 from bs4 import BeautifulSoup
+from tqdm import tqdm, trange
 
 # Create and configure logger
 LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
@@ -65,7 +66,7 @@ if __name__ == "__main__":
 
 
 def general_Tips_And_Tricks():
-    """ Tips and Tricks from https://www.youtube.com/watch?v=C-gEQdGVXbk"""
+    """ Tips and Tricks, mostly from https://www.youtube.com/watch?v=C-gEQdGVXbk"""
     # - Context manager
     try:
         with open('test.txt', 'r') as f:
@@ -120,7 +121,20 @@ def general_Tips_And_Tricks():
     # dir(datetime)
     # datetime.today
     # datetime.today()
-
+    
+    # Progress bar (tqdm)
+    with tqdm(desc="Sample description", leave=False, unit=" Requests", total=50) as pbar: # Manual updating
+        for i in range(50):
+            r = requests.get(url)
+            pbar.update()
+            # or someFunction(pbar) then pbar.update() there
+            if int(r.headers['Content-Length']) == 200:
+                pbar.close()
+                return r.text
+    for i in trange(50): # Might not have leave feature
+        print("Do something)
+    for i in tqdm(range(50),desc="Sample description", leave=False, unit=" Requests"): # Might not have leave feature
+        print("Do something)
 
 def concurrent_threading_tips():
     """
