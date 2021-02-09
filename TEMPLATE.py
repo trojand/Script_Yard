@@ -343,14 +343,11 @@ async def sqli_main():
                 )
             )
         await done.wait()
-    print(f"Possible SQLi using data:\n{done.run_answer}")
+        print(f"Possible SQLi using data:\n{done.run_answer}")
 
-    cancelled_tasks = 0
-    for t in tasks:
-        t.cancel()
-        cancelled_tasks += 1
-    print(f"Total expected requests: {len(range(10))}")
-    print(f"Total cancelled requests: {cancelled_tasks}")
+  
+        for t in tasks:
+            t.cancel()
     #     responses = await asyncio.gather(*tasks)
 
     # for r in responses:
