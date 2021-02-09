@@ -313,7 +313,7 @@ async def sqli_request(sem, session, url, headers, data, proxies,done):
     """
     HTTP Request function to send SQLi
     """
-    async with sem, session.post(url, headers=headers, data=data, proxy=proxies) as response:
+    async with sem, session.post(url, headers=headers, data=data, proxy=proxies, allow_redirects=False) as response:
         html_body = await response.text()
         if re.search("There is an SQL Error", html_body)
               done.set()
