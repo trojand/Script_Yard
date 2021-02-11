@@ -47,7 +47,7 @@ def main():
     log.info("INFO: Args: % s" % args.ip)
     
     # Requests
-    proxies = {'http': 'http://127.0.0.1:8080', 'https': 'https://127.0.0.1:8080'}
+    proxies = {'http': 'http://127.0.0.1:8080', 'https': 'http://127.0.0.1:8080'}
     headers = {'User-Agent': 'Mozilla'}
     data = "id=1"
     r = requests.get('https://google.com/', headers=headers, verify=False, proxies=proxies)
