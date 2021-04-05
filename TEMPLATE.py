@@ -313,7 +313,7 @@ async def sqli_request(sem, session, url, headers, data, proxies,done):
     """
     HTTP Request function to send SQLi
     """
-    async with sem, session.post(url, headers=headers, data=data, proxy=proxies, allow_redirects=False) as response:
+    async with sem, session.post(url, headers=headers, data=data, proxy=proxies['http'], allow_redirects=False) as response:
         html_body = await response.text()
         # if(response.status == 302):
         # if response.headers['Content-Length'] != 2874:
@@ -327,7 +327,7 @@ async def sqli_main():
     # Insert argparse and logging section HERE
 
     # Variables
-    proxies = "http://127.0.0.1:8080"
+    proxies = {'http': 'http://127.0.0.1:8080', 'https': 'http://127.0.0.1:8080'}
     headers = {'User-Agent': 'Mozilla', 'Content-Type': 'application/json'}
     protocol = 'http://'
     path = '/someApp/someFile.php'
