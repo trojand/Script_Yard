@@ -315,9 +315,9 @@ async def sqli_request(sem, session, url, headers, data, proxies,done):
     """
     async with sem, session.post(url, headers=headers, data=data, proxy=proxies, allow_redirects=False) as response:
         html_body = await response.text()
-        if re.search("There is an SQL Error", html_body)
-              done.set()
-              done.run_answer = data
+        if re.search("There is an SQL Error", html_body):
+            done.set()
+            done.run_answer = data
         # return {"statusCode": response.status, "headers": response.headers, "body": html_body, "cookies": response.cookies}
 
 
