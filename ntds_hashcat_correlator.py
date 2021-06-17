@@ -109,7 +109,7 @@ def main():
                                      '     cat secretsdump.txt|grep -v -e "\$:" -e "\[" -e "\]"|grep -e ":::" > ntds_users_only.txt\n' +
                                      "The \"ntds_users_only.txt\" file is the file you crack in hashcat. After all your cracking efforts, retrieve the hashcat.potfile and use it as the 2nd input to this script.\n\n" +                                     'IMPORTANT: Make sure your hashcat.potfile is fresh and for that "ntds_users_only.txt" file only. Meaning it is not mixed with previously cracked hashes.\n\n' + 
                                      "Example commands:\n" +
-                                     "$ python3 " + sys.argv[0] + " --ntds ntds_users_only.txt --hashcat_potfile hashcat.potfile\n")
+                                     "$ python3 " + sys.argv[0] + " --mode 2 --ntds ntds_users_only.txt --hashcat_potfile hashcat.potfile\n")
 
     parser.add_argument("--mode", dest="mode", required=True, type=int, help="Mode '1': Normal Output. Mode '2': Password Reuse + Statistics Output")
     parser.add_argument("--ntds", dest="ntds", required=True, type=str, help="The NTDS file from which you extracted the users hashes from.\nThis could be the output of ntdsutil+secretsdump or secretsdump directly or 'crackmapexec --ntds' option, etc. Then grepped to filter out machine hashes and other non-user hash related lines.")
