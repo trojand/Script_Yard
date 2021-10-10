@@ -52,6 +52,13 @@ def main():
     data = "id=1"
     r = requests.get('https://google.com/', headers=headers, verify=False, proxies=proxies)
     # r = requests.post('https://google.com/', headers=headers, verify=False, proxies=proxies, data=data)
+
+    # Providing the custom cert to requests
+    #   When using proxy (i.e. Burp), rather than using `verify=False` in the `request.get` or `request.post`, convert the Burp certificate cacert.der instead to cacert.pem then use in on python requests
+    # Converting cacert.der to cacert.pem
+    #   openssl x509 -in cacert.der -inform DER -outform PEM -out cacert.pem
+    # r = session.post(burp0_url, headers=burp0_headers, data=burp0_data,proxies=proxies,verify="cacert.pem")
+    
     print('Status_code is: ', r.status_code)
     print('Headers are: ', r.headers)
     print('Cookies are: ', r.cookies)
