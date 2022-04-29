@@ -130,3 +130,9 @@ if __name__ == "__main__":
     main()
     ellapsed_time = round(time.perf_counter() - start_time, 2)
     print(f'\n\nFinished in {ellapsed_time} seconds(s)')
+
+# So you're reading the code. Here's a bonus then:
+# To simply generate statistics on password reuse without needing to crack for the plaintext passwords, a bash command line is available below:
+# cat ntds.ntds|cut -d : -f 4|sort|uniq -c|sort -h
+
+
